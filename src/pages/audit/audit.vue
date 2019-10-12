@@ -61,7 +61,6 @@
                                 <span v-if="k.driverType === 2">加盟司机</span>
                             </th>
                             <th>
-                                <!--<input type="button" class="btn btn-default btn-xs" value="审核" v-if="k.driverStatus ===0" @click="show_audit(k,0)">-->
                                 <span v-if="k.driverStatus === 0">资料未完善</span>
                                 <input type="button" class="btn btn-default btn-xs" value="审核" @click="show_audit(k,1)">
                             </th>
