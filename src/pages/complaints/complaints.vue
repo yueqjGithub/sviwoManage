@@ -1,0 +1,410 @@
+<template>
+  <div>
+    <el-button type="primary" icon="el-icon-search"  @click="showSearchMore">打开搜索</el-button>
+    <!--<input class="btn btn-default searchBtn" type="button" value="打开搜索">-->
+    <search-more v-if="show_sm" @off_sm="offSearchMore" @submitOption="sub"></search-more>
+    <div class="contTable">
+      <el-table
+        :data="feedList"
+        border
+        stripe
+      >
+        <el-table-column
+          type="expand"
+        >
+          <template slot-scope="props">
+            <el-form label-position="left" inline class="feedCont">
+              <el-form-item label="乘客真实姓名">
+                <span>{{ props.row.prealName }}</span>
+              </el-form-item>
+              <el-form-item label="司机真实姓名">
+                <span>{{ props.row.drealName }}</span>
+              </el-form-item>
+              <el-form-item label="反馈内容">
+                <span>{{ props.row.feedbackContent }}</span>
+              </el-form-item>
+              <el-form-item label="回复">
+                <span>{{ props.row.remark }}</span>
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="反馈来源"
+          width="104"
+          prop="feedbackFrom"
+          :filters="[{ text: '乘客端', value: 2 }, { text: '司机端', value: 1 }]"
+          :filter-method="filterTag"
+          :formatter="showOrigin"
+        >
+          <!--<template-->
+            <!--slot-scope="scope"-->
+          <!--&gt;-->
+            <!--{{scope.row.feedbackFrom===1?'司机端':'乘客端'}}-->
+          <!--</template>-->
+        </el-table-column>
+        <!--<el-table-column-->
+          <!--prop="feedbackContent"-->
+          <!--label="投诉内容"-->
+          <!--width="110"-->
+        <!--&gt;-->
+        <!--</el-table-column>-->
+        <el-table-column
+          prop="feedbackTime"
+          label="反馈时间"
+          sortable
+          width="170"
+        >
+        </el-table-column>
+        <el-table-column
+          label="处理状态"
+          width="110"
+          prop="status"
+          :filters="[{ text: '未处理', value: 0 }, { text: '已处理', value: 1 }]"
+          :filter-method="filterStatus"
+          :formatter="showStatus"
+        >
+          <!--<template slot-scope="scope">-->
+            <!--{{scope.row.status===1?'已处理':'未处理'}}-->
+          <!--</template>-->
+        </el-table-column>
+        <el-table-column
+          prop="handlingTime"
+          label="处理时间"
+          sortable
+          width="170"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="remark"
+          width="200"
+          label="备注"
+        >
+        </el-table-column>
+        <!--<el-table-column-->
+          <!--prop="userName"-->
+          <!--label="用户帐号"-->
+          <!--width="170"-->
+        <!--&gt;-->
+        <!--</el-table-column>-->
+        <el-table-column
+          prop = "pmobile"
+          label="乘客手机号"
+          width="170"
+        >
+        </el-table-column>
+        <el-table-column
+          prop = "dmobile"
+          label="司机手机号"
+          width="170"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="sysRealName"
+          label="处理人真实姓名"
+          width="125"
+          :formatter="worker"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="prealName"
+          width="125"
+          label="乘客真实姓名"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="drealName"
+          label="	司机真实姓名"
+          width="125"
+        >
+        </el-table-column>
+        <el-table-column
+          label="操作"
+          fixed="right"
+        >
+          <template slot-scope="scope">
+            <el-button type="primary" size="mini" @click="answer(scope.row)">回复</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="turn-page">
+      <nav aria-label="Page navigation" class="pgBtn">
+        <span>当前第</span>
+        <ul class="pagination">
+          <li>
+            <a href="#" aria-label="Previous" @click.prevent = 'prev'>
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <li v-for="k in pageBean" :class="{'active':currentPage===k}">
+            <a href="#" @click.prevent = 'jumpTo($event)'>{{k}}</a>
+          </li>
+          <li>
+            <a href="#" aria-label="Next" @click.prevent = 'next'>
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+        <span>页</span>
+      </nav>
+    </div>
+  </div>
+</template>
+
+<script>
+  import axios_post from '@/api/extendAxios.js'
+  import urls from '@/config/api.js'
+  import searchMore from '@/pages/complaints/searchMore.vue'
+    export default {
+        name:'complaints',
+        components:{
+          searchMore: searchMore
+        },
+        data:function () {
+          return{
+            currentPage:1,
+            allPage:1,
+            feedList:[],//投诉列表
+            searchOptions:{},//储存搜索参数
+            searchStatus:false,//判断是否在搜索状态中
+            show_sm:false,//是否显示搜索面板
+          }
+        },
+        created:function () {
+          let vm = this
+          let params={
+              pageSize:10,
+              currentPage:1,
+          }
+          axios_post.post(urls.getFeedback,params).then(res=>{
+              let code = res.data.code
+//              console.log(code)
+              if(code==='10000'){//suc
+                vm.feedList = res.data.data.data
+                for(let k of vm.feedList){
+                    k.feedbackTime = vm.timeBasic(k.feedbackTime)
+                    if (k.handlingTime) {
+                      k.handlingTime = vm.timeBasic(k.handlingTime)
+                    }
+                }
+//                console.log(vm.feedList)
+                vm.allPage = res.data.data.totalPage
+              }else{
+                  layer.open({
+                    title:code,
+                    content:res.data.msg
+                  })
+              }
+          },err=>{
+              vm.$message.error('请求反馈列表失败')
+          })
+
+        },
+        mounted:function () {
+
+        },
+        methods:{
+          //打开搜索
+          showSearchMore:function () {
+            this.show_sm = true
+          },
+          //关闭搜索
+          offSearchMore: function () {
+            this.show_sm = false
+            this.searchStatus = false
+          },
+          //处理人显示--formatte
+          worker:function (row,column) {
+            return row.status===1?row.sysRealName:'无'
+          },
+          //设备显示--formatte
+          showOrigin:function (row) {
+            return row.feedbackFrom===1?'司机端':'乘客端'
+          },
+          //处理状态显示-- formatter
+          showStatus:function (row) {
+            return row.status===0?'未处理':'已处理'
+          },
+          //操作端筛选--filter-methods
+          filterTag(value, row) {
+            return row.feedbackFrom === value;
+          },
+          filterStatus(value, row) {
+            return row.status === value;
+          },
+          //点击回复
+          answer:function (row) {
+//            console.log(row)
+            let vm = this
+            vm.$prompt('请输入回复','回复反馈',{
+              confirmButtonText: '提交回复',
+              cancelButtonText: '取消',
+            }).then(value=>{
+//              console.log(value)
+              let session = sessionStorage.getItem('admin/user')
+              session = JSON.parse(session)
+              let usr = session.sysUserId
+              let params = {
+                feedbackId:row.feedbackId,
+                handlingUser:usr,
+                remark:value.value
+              }
+//              console.log(params)
+              axios_post.post(urls.handingFeedback,params).then(res=>{
+                let code = res.data.code
+                if(code==='30012'){
+                    row.status=1
+                    row.remark = params.remark
+                } else {
+
+                }
+                vm.$message({
+                  type:'success',
+                  message:res.data.msg
+                })
+              }).catch(err=>{
+                vm.$notify.error({
+                  title: '错误',
+                  message: err.message,
+                  duration: 0
+                });
+              })
+            }).catch(()=>{
+                vm.$message({
+                  type: 'info',
+                  message: '取消回复'
+                })
+            })
+          },
+          //高级搜索
+          sub: function (opt) {
+//                console.log(opt)
+//                @param
+//                    opt.opt 搜索参数
+//                @param
+//                    opt.cur 当前页数
+            let vm = this
+            this.searchOptions = opt.opt
+            this.searchStatus = true
+            let opt2 = opt.opt
+            let option = {
+              pageSize: 10,
+              currentPage: opt.cur,
+              ...opt2
+            }
+            axios_post.post(urls.getFeedback,option).then((res)=>{
+              let response = res.data.data
+              vm.feedList = res.data.data.data
+              for(let k of vm.feedList){
+                k.feedbackTime = vm.timeBasic(k.feedbackTime)
+                if (k.handlingTime) {
+                  k.handlingTime = vm.timeBasic(k.handlingTime)
+                }
+              }
+              vm.allPage = response.totalPage
+              vm.currentPage = response.currentPage
+            },(err)=>{
+              console.log(err)
+            }).finally(()=>{
+              layer.close()
+            })
+          },
+          //获取一页信息
+          getDriverInfo: function () {
+            let vm = this
+            let params = {
+              currentPage: this.currentPage,
+              pageSize: 10,
+            }
+            axios_post.post(urls.getFeedback,params).then((res)=>{
+              let response = res.data.data
+              vm.feedList = response.data
+              for(let k of vm.feedList){
+                k.feedbackTime = vm.timeBasic(k.feedbackTime)
+                if (k.handlingTime) {
+                  k.handlingTime = vm.timeBasic(k.handlingTime)
+                }
+              }
+              vm.allPage = response.totalPage
+//                    vm.currentPage = response.currentPage
+            },(err)=>{
+              layer.msg(err.message)
+            })
+          },
+          //点击页码
+          jumpTo: function (e) {
+            let num = e.target.innerText
+            let vm = this
+            num = parseInt(num)
+            this.currentPage = num
+            if (vm.searchStatus) {
+              let data = {
+                opt:vm.searchOptions,
+                cur:vm.currentPage
+              }
+              vm.sub(data)
+            } else {
+              vm.getDriverInfo()
+            }
+          },
+          //前一页
+          prev: function () {
+            let vm = this
+            if(this.currentPage > 1){
+              this.currentPage --
+              if (vm.searchStatus) {
+                let data = {
+                  opt:vm.searchOptions,
+                  cur:vm.currentPage
+                }
+                vm.sub(data)
+              } else {
+                vm.getDriverInfo()
+              }
+            } else {
+              layer.msg('前面没有了')
+            }
+          },
+          //下一页
+          next: function () {
+            let vm = this
+            if(this.currentPage < this.allPage) {
+              this.currentPage ++
+              if (vm.searchStatus) {
+                let data = {
+                  opt:vm.searchOptions,
+                  cur:vm.currentPage
+                }
+                vm.sub(data)
+              } else {
+                vm.getDriverInfo()
+              }
+            } else {
+              layer.msg('已经是最后一页啦')
+            }
+          },
+        }
+    }
+</script>
+
+<style scoped>
+.feedCont .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
+}
+.pgBtn{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.searchBtn{
+  height:50%;
+  align-self: flex-end;
+  margin:0 4px 0 4px;
+}
+  .contTable{
+    margin-top: 7px;
+  }
+</style>

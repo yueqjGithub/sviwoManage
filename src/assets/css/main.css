@@ -1,0 +1,294 @@
+@import "./animate.css";
+
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background-color: #eee;
+}
+ul,li{
+    list-style-type: none;
+}
+
+@media only screen {
+    html { font-size: 30px; }
+}
+@media only screen and (max-width: 479px) and (min-width: 321px) {
+    html { font-size: 15px; } }
+@media only screen and (max-width: 320px) {
+    html { font-size: 13px; }
+}
+
+/*
+ * Base structure
+ */
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+    padding-top: 50px;
+  /*background: #eeeeee !important;*/
+}
+
+
+/*
+ * Global add-ons
+ */
+
+.sub-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/*
+ * Top navigation
+ * Hide default border to remove 1px line.
+ */
+.navbar-fixed-top {
+    border: 0;
+}
+
+/*
+ * Sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+    display: none;
+}
+@media (min-width: 768px) {
+    .sidebar {
+        position: fixed !important;
+        top: 51px;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        display: block;
+        /*padding: 20px;*/
+        overflow-x: hidden;
+        overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+        background-color: rgb(84, 92, 100);
+    }
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+    margin-right: -21px; /* 20px padding + 1px border */
+    margin-bottom: 20px;
+    margin-left: -20px;
+}
+.nav-sidebar > li > a {
+    padding-right: 20px;
+    padding-left: 20px;
+}
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+    color: #fff;
+    background-color: #428bca;
+}
+
+
+/*
+ * Main content
+ */
+
+.main {
+    padding: 20px;
+}
+@media (min-width: 768px) {
+    .main {
+        padding-right: 40px;
+        padding-left: 40px;
+    }
+}
+.main .page-header {
+    margin-top: 0;
+}
+
+
+/*
+ * Placeholder dashboard ideas
+ */
+
+.placeholders {
+    margin-bottom: 30px;
+    text-align: center;
+}
+.placeholders h4 {
+    margin-bottom: 0;
+}
+.placeholder {
+    margin-bottom: 20px;
+}
+.placeholder img {
+    display: inline-block;
+    border-radius: 50%;
+}
+th{
+    vertical-align: middle;
+}
+/**弹出层关闭按钮----*/
+.detail{
+    position: fixed;
+    top: 15vh;
+    left: 20%;
+    width: 70%;
+    min-height: 50vh;
+    max-height: 70vh;
+    z-index: 1000;
+}
+.detail2{
+    width:100%;
+    height: 70vh;
+    overflow-y: scroll;
+    border:2px solid #000000;
+    background: #e7e7e7;
+    padding-bottom: 17px;
+}
+.offBtn{
+    font-size: 3rem;
+    width: 100%;
+    color: white;
+    font-family: Arial;
+    cursor: pointer;
+    text-align: right;
+    margin: 0;
+    padding-right: 8px;
+    background: rgba(0,0,0,1);
+}
+.pgBtn{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+/*-----------------------杂项-----------------------------*/
+*{
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+}
+.showPermList{
+    margin:0;
+    color: #2e6da4;
+}
+.el-upload__input{
+    display: none !important;
+}
+/*-----------------------杂项-----------------------------*/
+/*---------------------------新弹出层-------------------------*/
+.popModule{
+  position: fixed;
+  top: 15vh;
+  left: 20%;
+  width: 75%;
+  min-height: 70vh;
+  height: 80vh;
+  z-index: 1000;
+  background: #ffffff;
+  -webkit-border-radius:5px;
+  -moz-border-radius:5px;
+  -webkit-box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+  -moz-box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+  border-radius:5px;
+  border:1px solid #e7e7e7;
+  padding: 17px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.closePop{
+  /*position: absolute;*/
+  top: 18px;
+  right: 15px;
+  cursor: pointer;
+  /*float: right;*/
+  color: #909399;
+  font-size: 16px;
+  font-family: element-icons!important;
+  speak: none;
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: baseline;
+  display: inline-block;
+  -webkit-font-smoothing: antialiased;
+}
+.closePop::before{
+  content: "\e6db";
+  font-size: 2.3rem;
+}
+.cutLine{
+  width:100%;
+  height: 2px;
+  background: #e4e4e4;
+  margin:12px 0;
+}
+.pop_detail{
+  width:100%;
+  height: 70vh;
+  /*background: red;*/
+  overflow-y: scroll;
+}
+.todo-div{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  width:100%;
+}
+.todo-div>div{
+  margin-top: 3px;
+}
+/*---------------------------新弹出层-------------------------*/
+/*---------------------------1.2.0-------------------------*/
+.searchDiv{
+  padding: 4px;
+  background: #e4e4e4;
+}
+.buttonDiv{
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 4px 0;
+}
+.buttonList{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pageDiv{
+  display: flex;
+  justify-content: flex-end;
+}
+.el-drawer__header{
+  margin-bottom: 0px !important;
+}
+.drawerCustom{
+  margin-top: 16px;
+}
+.ant-upload-list-picture-card .ant-upload-list-item {
+  width: 154px !important;
+  height: 154px !important;
+}
+.cImg,.dImg .image-slot{
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #e4e4e4;
+}
+.fl{
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.fr{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+/*---------------------------1.2.0-------------------------*/
